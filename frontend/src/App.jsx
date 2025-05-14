@@ -1,46 +1,56 @@
-import { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import LoginPage from './pages/LoginPage';
-import LinksPage from './pages/LinksPage';
-import './App.css';
+// src/App.jsx
+import { useState, useEffect } from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import LoginPage from './pages/LoginPage'
+import LinksPage from './pages/LinksPage'
+import './App.css'
 
-function App() {
-  // Gerencia estado de autenticação
+export default function App() {
   const [isLogged, setIsLogged] = useState(
     Boolean(localStorage.getItem('loggedIn'))
-  );
+  )
 
-  // Atualiza isLogged se a chave muda (e.g. após login)
+  // Mantém isLogged sincronizado se mudar em outra aba
   useEffect(() => {
     const handleStorage = () => {
-      setIsLogged(Boolean(localStorage.getItem('loggedIn')));
-    };
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, []);
+      setIsLogged(Boolean(localStorage.getItem('loggedIn')))
+    }
+    window.addEventListener('storage', handleStorage)
+    return () => window.removeEventListener('storage', handleStorage)
+  }, [])
 
   return (
     <BrowserRouter>
       <Routes>
-        {/* LoginPage recebe callback para atualizar estado */}
+        {/* Login */}
         <Route
           path="/login"
           element={<LoginPage onLogin={() => setIsLogged(true)} />}
         />
 
-        {/* Rota de links só acessível se estiver logado */}
+        {/* Todos os links */}
         <Route
           path="/links"
           element={
-            isLogged ? <LinksPage /> : <Navigate to="/login" replace />
+            isLogged 
+              ? <LinksPage view="all" onLogout={() => setIsLogged(false)} /> 
+              : <Navigate to="/login" />
           }
         />
 
-        {/* Qualquer outra rota redireciona para login */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        {/* Meus links */}
+        <Route
+          path="/my-links"
+          element={
+            isLogged 
+              ? <LinksPage view="mine" onLogout={() => setIsLogged(false)} /> 
+              : <Navigate to="/login" />
+          }          
+        />
+
+        {/* Qualquer outro caminho redireciona ao login */}
+        <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </BrowserRouter>
-  );
+  )
 }
-
-export default App;

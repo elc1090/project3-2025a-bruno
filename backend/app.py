@@ -4,9 +4,15 @@ from flask_cors import CORS
 from functools import wraps
 
 app = Flask(__name__)
+# Configuração do Flask
+app.config.update(
+    SECRET_KEY='uma-chave-qualquer',
+    SESSION_COOKIE_SAMESITE='Lax',    # permite envio em navegações top-level
+    SESSION_COOKIE_HTTPONLY=True,       # segurança extra
+)
 # permite que o front acesse o back e envie cookies de sessão
 CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
-app.secret_key = 'uma-chave-qualquer'
+
 # Configuração da conexão com MySQL 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:Brunop10%40@localhost/project3'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -22,6 +28,17 @@ class Link(db.Model):
     titulo = db.Column(db.String(200), nullable=False)
     data_adicao = db.Column(db.DateTime, server_default=db.func.now())
     confiabilidade = db.Column(db.Float, nullable=True)
+    user_email     = db.Column(db.String(120), nullable=False)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'url': self.url,
+            'titulo': self.titulo,
+            'data_adicao': self.data_adicao.isoformat(),
+            'confiabilidade': self.confiabilidade,
+            'user_email': self.user_email
+        }
 
 # Dicionário em memória para usuários pré-cadastrados
 USERS = {
@@ -51,18 +68,17 @@ def login_user():
     session['user_email'] = email
     return jsonify({'msg': 'Login realizado com sucesso'})
 
+@app.route('/login', methods=['GET'])
+def login_placeholder():
+    return '', 200
+
+
 # CRUD de Links
 @app.route('/links', methods=['GET'])
 @login_required
 def list_links():
-    links = Link.query.all()
-    return jsonify([{
-        'id': l.id,
-        'url': l.url,
-        'titulo': l.titulo,
-        'data_adicao': l.data_adicao.isoformat(),
-        'confiabilidade': l.confiabilidade
-    } for l in links])
+    links = Link.query.order_by(Link.data_adicao.desc()).all()
+    return jsonify([l.to_dict() for l in links])
 
 @app.route('/links', methods=['POST'])
 @login_required
@@ -70,10 +86,11 @@ def create_link():
     data = request.get_json(force=True)
     url = data.get('url')
     titulo = data.get('titulo')
+    user_email=session['user_email']
     if not url or not titulo:
         return jsonify({'erro': 'URL e título são obrigatórios'}), 400
 
-    novo = Link(url=url, titulo=titulo)
+    novo = Link(url=url, titulo=titulo, user_email=user_email)
     db.session.add(novo)
     db.session.commit()
     return jsonify({'id': novo.id}), 201
@@ -97,5 +114,13 @@ def delete_link(id):
     db.session.commit()
     return jsonify({'msg': 'Link removido com sucesso'})
 
+
+@app.route('/my-links', methods=['GET'])
+@login_required
+def list_my_links():
+    email = session['user_email']
+    links = Link.query.filter_by(user_email=email).order_by(Link.data_adicao.desc()).all()
+    return jsonify([l.to_dict() for l in links])
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='localhost', port=5000, debug=True)

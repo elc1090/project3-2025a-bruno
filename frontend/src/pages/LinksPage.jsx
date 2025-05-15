@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import LinkForm from '../components/LinkForm'
 
-export default function LinksPage({ view, onLogout }) {
+export default function LinksPage({ view }) {
   const [links, setLinks] = useState([])
   const navigate = useNavigate()
 
@@ -26,13 +26,6 @@ export default function LinksPage({ view, onLogout }) {
     loadLinks()
   }
 
-  // Logout sem causar re-render loop
-  const handleLogout = () => {
-    localStorage.removeItem('loggedIn')
-    onLogout()
-    navigate('/login')
-  }
-
   return (
     <main className="p-4">
       {/* Menu de Abas */}
@@ -50,7 +43,7 @@ export default function LinksPage({ view, onLogout }) {
           Meus Links
         </button>
         <button
-          onClick={handleLogout}
+          onClick={() => navigate('/logout')}
           className="text-red-500 ml-auto"
         >
           Sair

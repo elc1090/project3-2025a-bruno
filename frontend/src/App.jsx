@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import LoginPage from './pages/LoginPage'
 import LinksPage from './pages/LinksPage'
+import Logout from './components/Logout'
 import './App.css'
 
 export default function App() {
@@ -33,7 +34,7 @@ export default function App() {
           path="/links"
           element={
             isLogged 
-              ? <LinksPage view="all" onLogout={() => setIsLogged(false)} /> 
+              ? <LinksPage view="all" /> 
               : <Navigate to="/login" />
           }
         />
@@ -43,9 +44,14 @@ export default function App() {
           path="/my-links"
           element={
             isLogged 
-              ? <LinksPage view="mine" onLogout={() => setIsLogged(false)} /> 
+              ? <LinksPage view="mine" /> 
               : <Navigate to="/login" />
           }          
+        />
+        {/* Logout */}
+        <Route
+          path="/logout"
+          element={<Logout onLogout={() => setIsLogged(false)} />}
         />
 
         {/* Qualquer outro caminho redireciona ao login */}

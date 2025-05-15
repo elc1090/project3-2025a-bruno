@@ -1,13 +1,20 @@
 // src/components/LoginForm.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
-export default function LoginForm() {
+export default function LoginForm({onLogin}) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [erro, setErro] = useState('');
   const navigate = useNavigate();
+
+  // Reseta campos toda vez que o componente monta
+  useEffect(() => {
+    setEmail('')
+    setSenha('')
+    setErro('')
+  }, [])
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -24,7 +31,8 @@ export default function LoginForm() {
       console.log('onLogin chamado');
       // Aguarde um ciclo para garantir re-render
       setTimeout(() => {
-        navigate('/links');
+        navigate('/links', { replace: true });
+        console.log('Navegando para /links');
       }, 0);
 
     } catch (err) {

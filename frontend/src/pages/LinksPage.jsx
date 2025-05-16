@@ -6,6 +6,9 @@ import LinkForm from '../components/LinkForm'
 
 export default function LinksPage({ view }) {
   const [links, setLinks] = useState([])
+  const [editingId, setEditingId] = useState(null)
+  const [editUrl, setEditUrl] = useState('')
+  const [editTitulo, setEditTitulo] = useState('')
   const navigate = useNavigate()
 
   // Determina qual endpoint usar
@@ -24,6 +27,32 @@ export default function LinksPage({ view }) {
   const handleDelete = async (id) => {
     await api.delete(`/links/${id}`)
     loadLinks()
+  }
+
+  // Inicia edição: preenche campos e marca editingId
+  const handleEditClick = (link) => {
+    setEditingId(link.id)
+    setEditUrl(link.url)
+    setEditTitulo(link.titulo)
+  }
+
+  // Envia atualização
+  const handleEditSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      await api.put(`/links/${editingId}`, {
+        url: editUrl,
+        titulo: editTitulo
+      })
+      setEditingId(null)
+      loadLinks()
+    } catch (err) {
+      console.error('Erro ao editar:', err)
+    }
+  }
+
+  const handleEditCancel = () => {
+    setEditingId(null)
   }
 
   return (
@@ -62,6 +91,40 @@ export default function LinksPage({ view }) {
           const userName = l.user_email.split('@')[0]
           const addedAt = new Date(l.data_adicao).toLocaleString()
 
+          // Se estiver editando este link...
+          if (editingId === l.id) {
+            return (
+              <li key={l.id} className="border p-4 rounded space-y-2">
+                <form onSubmit={handleEditSubmit} className="space-y-2">
+                  <input
+                    type="text"
+                    value={editTitulo}
+                    onChange={e => setEditTitulo(e.target.value)}
+                    className="w-full p-2 border rounded"
+                  />
+                  <input
+                    type="url"
+                    value={editUrl}
+                    onChange={e => setEditUrl(e.target.value)}
+                    className="w-full p-2 border rounded"
+                  />
+                  <div className="flex space-x-2">
+                    <button type="submit" className="px-4 bg-blue-500 text-white rounded">
+                      Salvar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleEditCancel}
+                      className="px-4 bg-gray-300 rounded"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </form>
+              </li>
+            )
+          }
+          // Se não estiver editando, exibe o link normalmente
           return (
             <li
               key={l.id}
@@ -85,12 +148,20 @@ export default function LinksPage({ view }) {
               </p>
 
               {view === 'mine' && (
-                <button
-                  onClick={() => handleDelete(l.id)}
-                  className="text-red-500 hover:underline"
-                >
-                  Excluir
-                </button>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => handleEditClick(l)}
+                    className="text-green-500 hover:underline"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    onClick={() => handleDelete(l.id)}
+                    className="text-red-500 hover:underline"
+                  >
+                    Excluir
+                  </button>
+                </div>
               )}
             </li>
           )

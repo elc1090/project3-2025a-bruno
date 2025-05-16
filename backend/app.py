@@ -102,7 +102,6 @@ def update_link(id):
     data = request.get_json(force=True)
     link.url = data.get('url', link.url)
     link.titulo = data.get('titulo', link.titulo)
-    link.confiabilidade = data.get('confiabilidade', link.confiabilidade)
     db.session.commit()
     return jsonify({'msg': 'Link atualizado com sucesso'})
 

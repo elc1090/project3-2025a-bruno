@@ -57,34 +57,45 @@ export default function LinksPage({ view }) {
       {links.length === 0 ? (
         <p>Nenhum link cadastrado.</p>
       ) : (
-        <ul className="space-y-2">
-          {links.map(l => (
+      <ul className="space-y-4">
+        {links.map(l => {
+          const userName = l.user_email.split('@')[0]
+          const addedAt = new Date(l.data_adicao).toLocaleString()
+
+          return (
             <li
               key={l.id}
-              className="border p-2 rounded flex justify-between items-start"
+              className="border p-4 rounded space-y-1"
             >
-              <div>
-                <a
-                  href={l.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-blue-600"
-                >
-                  {l.titulo}
-                </a>
-                <p className="text-sm text-gray-500">
-                  Adicionado por: <strong>{l.user_email}</strong>
-                </p>
-              </div>
-              <button
-                onClick={() => handleDelete(l.id)}
-                className="text-red-500 hover:underline"
+              <h2 className="text-lg font-semibold">{l.titulo}</h2>
+
+              <a
+                href={l.url}
+                target="_blank"
+                rel="noreferrer"
+                className="text-blue-600 underline break-all"
               >
-                Excluir
-              </button>
+                {l.url}
+              </a>
+
+              <p className="text-sm text-gray-500">Adicionado em: {addedAt}</p>
+
+              <p className="text-sm text-gray-500">
+                Por: <strong>{userName}</strong>
+              </p>
+
+              {view === 'mine' && (
+                <button
+                  onClick={() => handleDelete(l.id)}
+                  className="text-red-500 hover:underline"
+                >
+                  Excluir
+                </button>
+              )}
             </li>
-          ))}
-        </ul>
+          )
+        })}
+      </ul>
       )}
     </main>
   )

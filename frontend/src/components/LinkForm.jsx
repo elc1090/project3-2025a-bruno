@@ -43,7 +43,7 @@ export default function LinkForm({ onSuccess }) {
         />
         <button
           type="submit"
-          className="px-4 bg-green-500 text-white rounded hover:bg-green-600"
+          className="px-4 bg-blue-900 text-white rounded hover:bg-blue-950"
         >
           Adicionar
         </button>

@@ -22,6 +22,7 @@ export default function LoginForm({onLogin}) {
       await api.post('/login', { email, senha });
       console.log('Login bem-sucedido');
       localStorage.setItem('loggedIn', 'true');
+      localStorage.setItem('userEmail', email)
       console.log('localStorage setado');
       try {
         onLogin();
@@ -43,10 +44,10 @@ export default function LoginForm({onLogin}) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white p-6 rounded shadow-md w-full max-w-sm"
+      className="bg-gray-400 p-6 rounded shadow-md w-full max-w-sm"
     >
-      <h1 className="text-2xl mb-4 text-center">Login</h1>
-      {erro && <div className="text-red-500 mb-2">{erro}</div>}
+      <h1 className="text-2xl mb-4 text-center text-gray-700">Login</h1>
+      {erro && <div className="text-red-500 mb-2 font-semibold">{erro}</div>}
       <input
         type="email"
         placeholder="Email"

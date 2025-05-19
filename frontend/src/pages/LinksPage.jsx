@@ -10,6 +10,9 @@ export default function LinksPage({ view }) {
   const [editUrl, setEditUrl] = useState('')
   const [editTitulo, setEditTitulo] = useState('')
   const navigate = useNavigate()
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportTarget, setReportTarget] = useState(null);
+
 
   // Pega o e‑mail do usuário logado em localStorage
   const userEmail = localStorage.getItem('userEmail') || 'Usuário'
@@ -64,6 +67,22 @@ export default function LinksPage({ view }) {
     localStorage.removeItem('userEmail')
     navigate('/logout')
   }
+  // Abre modal de denúncia
+  const openReportModal = (link) => {
+    setReportTarget(link);
+    setShowReportModal(true);
+  };
+
+  const closeReportModal = () => {
+    setShowReportModal(false);
+    setReportTarget(null);
+  };
+
+  const handleReportSubmit = (reason) => {
+    alert(`Obrigado por reportar o link "${reportTarget.titulo}" como "${reason}".`);
+    closeReportModal();
+  };
+
 
   return (
     <div className="w-full min-h-screen flex flex-col bg-gray-100">
@@ -175,9 +194,18 @@ export default function LinksPage({ view }) {
                   key={l.id}
                   className="bg-white p-6 rounded-lg shadow-md border border-gray-200"
                 >
-                  <h3 className="text-xl font-semibold text-gray-800">
-                    {l.titulo}
-                  </h3>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xl font-semibold text-gray-800">
+                      {l.titulo}
+                    </h3>
+                    <button
+                      onClick={() => openReportModal(l)}
+                      title="Reportar"
+                      className="text-lg text-red-500 hover:text-red-700 p-1 bg-transparent border-none outline-none"
+                    >
+                      ❗
+                    </button>
+                  </div>
                   <a
                     href={l.url}
                     target="_blank"
@@ -209,6 +237,31 @@ export default function LinksPage({ view }) {
                 </div>
               );
             })}
+          </div>
+        )}
+        {showReportModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
+              <h3 className="text-xl font-semibold mb-4">Reportar link</h3>
+              <p className="mb-4 text-gray-700">Por que você quer reportar este link?</p>
+              <div className="space-y-2">
+                {['Fake News', 'Conteúdo Inapropriado', 'Link Quebrado', 'Outro'].map((reason) => (
+                  <button
+                    key={reason}
+                    onClick={() => handleReportSubmit(reason)}
+                    className="w-full text-left px-4 py-2 bg-gray-800 hover:bg-gray-200 rounded"
+                  >
+                    {reason}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={closeReportModal}
+                className="mt-4 text-sm text-red-500 hover:underline"
+              >
+                Cancelar
+              </button>
+            </div>
           </div>
         )}
       </main>

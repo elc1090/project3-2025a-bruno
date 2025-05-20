@@ -15,13 +15,14 @@ export default function LinksPage({ view }) {
   const [reportTarget, setReportTarget] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterBy, setFilterBy] = useState('title'); 
+  const [favoritedIds, setFavoritedIds] = useState(new Set());
 
 
   // Pega o e‑mail do usuário logado em localStorage
   const userEmail = localStorage.getItem('userEmail') || 'Usuário'
 
   // Determina qual endpoint usar
-  const endpoint = view === 'mine' ? '/my-links' : '/links'
+  const endpoint = view === 'mine' ? '/my-links' : view === 'favorites'? '/favorites': '/links'
 
   // Carrega os links
   const loadLinks = () => {
@@ -29,13 +30,39 @@ export default function LinksPage({ view }) {
       .then(res => setLinks(res.data))
       .catch(err => console.error(err))
   }
+   // Carrega também a lista de favoritos (só IDs) do usuário
+  const loadFavorited = () => {
+    api.get('/favorites')
+      .then(res => {
+        const ids = new Set(res.data.map(linkObj => linkObj.id));
+        setFavoritedIds(ids);
+      })
+      .catch(err => console.error(err));
+  };
 
-  useEffect(loadLinks, [view])
+  useEffect(() => {
+    loadLinks();
+    loadFavorited();
+  }, [view]); // toda vez que mudar “view” (all ou mine), recarrega lista e favoritos
+
+    /********** FUNÇÕES DE FAVORITO/DESFAVORITO **********/
+  const handleToggleFavorite = async (linkId) => {
+    if (favoritedIds.has(linkId)) {
+      // se já favoritado → desfavorita
+      await api.delete(`/favorites/${linkId}`);
+    } else {
+      // se não for favoritado ainda → adiciona aos favoritos
+      await api.post(`/favorites/${linkId}`);
+    }
+    // atualiza a lista de favoritos
+    loadFavorited();
+  };
 
   // Exclui um link e recarrega a lista
   const handleDelete = async (id) => {
     await api.delete(`/links/${id}`)
     loadLinks()
+    loadFavorited();
   }
 
   // Inicia edição: preenche campos e marca editingId
@@ -137,6 +164,12 @@ export default function LinksPage({ view }) {
               Meus Links
             </button>
             <button
+              onClick={() => navigate('/favorites')}
+              className="px-3 py-1 rounded-md bg-gray-300 text-black hover:bg-gray-400 transition"
+            >
+              Favoritos
+            </button>
+            <button
               onClick={handleLogout}
               className="px-3 py-1 rounded-md text-red-400 hover:text-red-200 hover:bg-red-700 transition"
             >
@@ -221,23 +254,37 @@ export default function LinksPage({ view }) {
                   </div>
                 );
               }
-
+              const isFav = favoritedIds.has(l.id);
               return (
                 <div
                   key={l.id}
                   className="bg-white p-6 rounded-lg shadow-md border border-gray-200"
                 >
+                   {/* Título + Botões de “favoritar” e “reportar” */}
                   <div className="flex items-center justify-between">
                     <h3 className="text-xl font-semibold text-gray-800">
                       {l.titulo}
                     </h3>
-                    <button
-                      onClick={() => openReportModal(l)}
-                      title="Reportar"
-                      className="text-lg text-red-500 hover:text-red-700 p-1 bg-transparent border-none outline-none"
-                    >
-                      ❗
-                    </button>
+
+                    <div className="flex items-center space-x-2">
+                      {/* Ícone de favoritar / desfavoritar */}
+                      <button
+                        onClick={() => handleToggleFavorite(l.id)}
+                        title={isFav ? 'Desfavoritar' : 'Adicionar aos Favoritos'}
+                        className="text-lg text-yellow-600 hover:text-yellow-800 p-1 bg-transparent border-none outline-none"
+                      >
+                        {isFav ? '★' : '☆'}
+                      </button>
+
+                      {/* Botão de denúncia */}
+                      <button
+                        onClick={() => openReportModal(l)}
+                        title="Reportar"
+                        className="text-lg text-red-500 hover:text-red-700 p-1 bg-transparent border-none outline-none"
+                      >
+                        📢
+                      </button>
+                    </div>
                   </div>
                   <a
                     href={l.url}

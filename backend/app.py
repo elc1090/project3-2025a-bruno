@@ -121,5 +121,57 @@ def list_my_links():
     links = Link.query.filter_by(user_email=email).order_by(Link.data_adicao.desc()).all()
     return jsonify([l.to_dict() for l in links])
 
+##############################################################################################################
+# CRUD de Favoritos
+class Favorite(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_email = db.Column(db.String(128), nullable=False)
+    link_id = db.Column(db.Integer, db.ForeignKey('links.id', ondelete='CASCADE'), nullable=False)
+
+    link = db.relationship('Link', backref=db.backref('favorited_by', cascade='all, delete-orphan'))
+
+    def to_dict(self):
+        return self.link.to_dict()
+
+@app.route('/favorites', methods=['GET'])
+@login_required
+def list_favorites():
+    user = session['user_email']
+    favs = Favorite.query.filter_by(user_email=user).all()
+    
+    return jsonify([f.to_dict() for f in favs]), 200
+
+@app.route('/favorites/<int:link_id>', methods=['POST'])
+@login_required
+def add_favorite(link_id):
+    user = session['user_email']
+   
+    link = Link.query.get(link_id)
+    if not link:
+        return jsonify({'erro': 'Link não encontrado'}), 404
+
+    existe = Favorite.query.filter_by(user_email=user, link_id=link_id).first()
+    if existe:
+        return jsonify({'msg': 'Já é favorito'}), 200
+
+    fav = Favorite(user_email=user, link_id=link_id)
+    db.session.add(fav)
+    db.session.commit()
+    return jsonify({'msg': 'Adicionado aos favoritos'}), 201
+
+@app.route('/favorites/<int:link_id>', methods=['DELETE'])
+@login_required
+def delete_favorite(link_id):
+    user = session['user_email']
+    fav = Favorite.query.filter_by(user_email=user, link_id=link_id).first()
+    if not fav:
+        return jsonify({'erro': 'Favorito não encontrado'}), 404
+
+    db.session.delete(fav)
+    db.session.commit()
+    return jsonify({'msg': 'Removido dos favoritos'}), 200
+
 if __name__ == '__main__':
     app.run(host='localhost', port=5000, debug=True)
+
+

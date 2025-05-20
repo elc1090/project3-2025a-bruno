@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import LoginPage from './pages/LoginPage'
 import LinksPage from './pages/LinksPage'
+import FavoritesPage from './pages/FavoritesPage'
 import Logout from './components/Logout'
 import './App.css'
 
@@ -47,6 +48,15 @@ export default function App() {
               ? <LinksPage view="mine" /> 
               : <Navigate to="/login" />
           }          
+        />
+        {/* Favoritos */}
+        <Route
+          path="/favorites"
+          element={
+            isLogged 
+              ? <FavoritesPage onLogout={() => setIsLogged(false)} />
+              : <Navigate to="/login" />
+          }
         />
         {/* Logout */}
         <Route

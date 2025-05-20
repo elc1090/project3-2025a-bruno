@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import LinkForm from '../components/LinkForm'
+import SearchFiltered from '../components/SearchFiltered';
 
 export default function LinksPage({ view }) {
   const [links, setLinks] = useState([])
@@ -12,6 +13,8 @@ export default function LinksPage({ view }) {
   const navigate = useNavigate()
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportTarget, setReportTarget] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterBy, setFilterBy] = useState('title'); 
 
 
   // Pega o e‑mail do usuário logado em localStorage
@@ -83,6 +86,25 @@ export default function LinksPage({ view }) {
     closeReportModal();
   };
 
+  // Filta os links com base no termo de busca e no tipo de filtro
+  const filteredLinks = links.filter((l) => {
+    const term = searchTerm.toLowerCase().trim();
+    if (!term) return true;
+
+    if (filterBy === 'title') {
+      return l.titulo.toLowerCase().includes(term);
+    }
+    if (filterBy === 'user') {
+      const authorName = l.user_email.split('@')[0].toLowerCase();
+      return authorName.includes(term);
+    }
+    if (filterBy === 'date') {
+      const dateStr = new Date(l.data_adicao).toLocaleDateString('pt-BR');
+      return dateStr.includes(term);
+    }
+    return true;
+  });
+
 
   return (
     <div className="w-full min-h-screen flex flex-col bg-gray-100">
@@ -123,21 +145,27 @@ export default function LinksPage({ view }) {
           </div>
         </div>
       </header>
-
+      {/* Barra de pesquisa e filtro */}
       {/* Conteúdo */}
       <main className="flex-1 w-full px-4 md:px-6 lg:px-8 py-8 max-w-[1280px] mx-auto">
         {/* Formulário de criação */}
         <div className="bg-white rounded-lg shadow p-6 mb-10 border border-gray-200">
           <LinkForm onSuccess={loadLinks} />
         </div>
-
-        {/* Título da lista */}
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+        /* Título da lista */
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
           {view === 'mine' ? 'Seus Links' : 'Todos os Links'}
         </h2>
-
+        {/* Filtro e pesquisa */}
+        <SearchFiltered
+        filterBy={filterBy}
+        onFilterChange={setFilterBy}
+        searchTerm={searchTerm}
+        onSearchTermChange={setSearchTerm}
+        onClear={() => setSearchTerm('')}
+        />
         {/* Grid de cards */}
-        {links.length === 0 ? (
+        {filteredLinks.length === 0 ? (
           <p className="text-center text-gray-500 mt-10">
             {view === 'mine'
               ? 'Você ainda não adicionou nenhum link.'
@@ -145,10 +173,15 @@ export default function LinksPage({ view }) {
           </p>
         ) : (
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2">
-            {links.map((l) => {
+            {filteredLinks.map((l) => {
               const authorName = l.user_email.split('@')[0];
-              const addedAt = new Date(l.data_adicao).toLocaleString();
-
+              const addedAt = new Date(l.data_adicao).toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              });
               if (editingId === l.id) {
                 return (
                   <div

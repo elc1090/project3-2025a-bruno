@@ -2,16 +2,17 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
-import LinkForm from '../components/LinkForm'
 import SearchFiltered from '../components/SearchFiltered'
+import LoadMore from '../components/LoadMore'
 
 export default function FavoritesPage({ onLogout }) {
   const [favorites, setFavorites] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
-  const [filterBy, setFilterBy] = useState('title') // 'title' | 'user' | 'date'
+  const [filterBy, setFilterBy] = useState('title')
   const [editingId, setEditingId] = useState(null)
   const [editTitulo, setEditTitulo] = useState('')
   const [editUrl, setEditUrl] = useState('')
+    const [visibleCount, setVisibleCount] = useState(6);
 
   // Modal de denúncia (reaproveitamos a mesma lógica)
   const [showReportModal, setShowReportModal] = useState(false)
@@ -106,6 +107,14 @@ export default function FavoritesPage({ onLogout }) {
     return true
   })
 
+  // Define o número de links a serem exibidos por vez
+  const visibleLinks = filteredFavs.slice(0, visibleCount);
+
+  // Função para carregar mais links
+  const handleLoadMore = () => {
+    setVisibleCount((prev) => prev + 6);
+  };
+
   return (
     <div className="w-full min-h-screen flex flex-col bg-gray-100">
       {/* -------- HEADER -------- */}
@@ -158,7 +167,7 @@ export default function FavoritesPage({ onLogout }) {
           </p>
         ) : (
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2">
-            {filteredFavs.map((l) => {
+            {visibleLinks.map((l) => {
               const authorName = l.user_email.split('@')[0]
               const addedAt = new Date(l.data_adicao).toLocaleDateString('pt-BR', {
                 day: '2-digit',
@@ -267,7 +276,12 @@ export default function FavoritesPage({ onLogout }) {
             })}
           </div>
         )}
+        <LoadMore
+        hasMore={visibleCount < filteredFavs.length}
+        onClick={handleLoadMore}
+        />
       </main>
+      
 
       {/* -------- FOOTER -------- */}
       <footer className="bg-gray-900 text-gray-300 text-center p-6 w-full">

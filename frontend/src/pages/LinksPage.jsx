@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import LinkForm from '../components/LinkForm'
 import SearchFiltered from '../components/SearchFiltered';
+import LoadMore from '../components/LoadMore'
 
 export default function LinksPage({ view }) {
   const [links, setLinks] = useState([])
@@ -16,7 +17,7 @@ export default function LinksPage({ view }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterBy, setFilterBy] = useState('title'); 
   const [favoritedIds, setFavoritedIds] = useState(new Set());
-
+  const [visibleCount, setVisibleCount] = useState(6);
 
   // Pega o e‑mail do usuário logado em localStorage
   const userEmail = localStorage.getItem('userEmail') || 'Usuário'
@@ -132,6 +133,14 @@ export default function LinksPage({ view }) {
     return true;
   });
 
+  // Define o número de links a serem exibidos por vez
+  const visibleLinks = filteredLinks.slice(0, visibleCount);
+
+  // Função para carregar mais links
+  const handleLoadMore = () => {
+    setVisibleCount((prev) => prev + 6);
+  };
+
 
   return (
     <div className="w-full min-h-screen flex flex-col bg-gray-100">
@@ -191,11 +200,11 @@ export default function LinksPage({ view }) {
         </h2>
         {/* Filtro e pesquisa */}
         <SearchFiltered
-        filterBy={filterBy}
-        onFilterChange={setFilterBy}
-        searchTerm={searchTerm}
-        onSearchTermChange={setSearchTerm}
-        onClear={() => setSearchTerm('')}
+          filterBy={filterBy}
+          onFilterChange={setFilterBy}
+          searchTerm={searchTerm}
+          onSearchTermChange={setSearchTerm}
+          onClear={() => setSearchTerm('')}
         />
         {/* Grid de cards */}
         {filteredLinks.length === 0 ? (
@@ -206,7 +215,7 @@ export default function LinksPage({ view }) {
           </p>
         ) : (
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2">
-            {filteredLinks.map((l) => {
+            {visibleLinks.map((l) => {
               const authorName = l.user_email.split('@')[0];
               const addedAt = new Date(l.data_adicao).toLocaleDateString('pt-BR', {
                 day: '2-digit',
@@ -319,6 +328,10 @@ export default function LinksPage({ view }) {
             })}
           </div>
         )}
+        <LoadMore
+          hasMore={visibleCount < filteredLinks.length}
+          onClick={handleLoadMore}
+        />
         {showReportModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">

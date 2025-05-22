@@ -20,7 +20,7 @@ export default function Header({ activeView, userEmail, onLogout }) {
             className="w-12 h-12 object-contain"
           />
           <span className="text-2xl sm:text-3xl font-extrabold tracking-wide">
-            Compartilha Info
+            CompartilhaInfo
           </span>
         </div>
 

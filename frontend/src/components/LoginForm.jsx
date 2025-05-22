@@ -42,36 +42,42 @@ export default function LoginForm({onLogin}) {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-gray-400 p-6 rounded shadow-md w-full max-w-sm"
+  <form
+    onSubmit={handleSubmit}
+    className="bg-white/90 backdrop-blur p-6 rounded-xl shadow-lg w-full"
+  >
+    <h2 className="text-2xl font-semibold mb-4 text-center text-gray-800">
+      Login
+    </h2>
+
+    {erro && <div className="text-red-600 mb-3 text-sm font-medium">{erro}</div>}
+
+    <input
+      type="email"
+      placeholder="Email"
+      value={email}
+      onChange={e => setEmail(e.target.value)}
+      className="w-full p-2 rounded-lg border border-gray-300 mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+      autoComplete="email"
+      required
+    />
+
+    <input
+      type="password"
+      placeholder="Senha"
+      value={senha}
+      onChange={e => setSenha(e.target.value)}
+      className="w-full p-2 rounded-lg border border-gray-300 mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+      autoComplete="current-password"
+      required
+    />
+
+    <button
+      type="submit"
+      className="w-full p-2 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition duration-200"
     >
-      <h1 className="text-2xl mb-4 text-center text-gray-700">Login</h1>
-      {erro && <div className="text-red-500 mb-2 font-semibold">{erro}</div>}
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={e => setEmail(e.target.value)}
-        className="w-full p-2 border rounded mb-3"
-        autoComplete="email"
-        required
-      />
-      <input
-        type="password"
-        placeholder="Senha"
-        value={senha}
-        onChange={e => setSenha(e.target.value)}
-        className="w-full p-2 border rounded mb-4"
-        autoComplete="current-password"
-        required
-      />
-      <button
-        type="submit"
-        className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-      >
-        Entrar
-      </button>
-    </form>
-  );
+      Entrar
+    </button>
+  </form>
+)
 }

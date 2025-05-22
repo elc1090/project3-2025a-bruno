@@ -5,6 +5,7 @@ import api from '../services/api'
 import LinkForm from '../components/LinkForm'
 import SearchFiltered from '../components/SearchFiltered';
 import LoadMore from '../components/LoadMore'
+import Header from '../components/Header';
 
 export default function LinksPage({ view }) {
   const [links, setLinks] = useState([])
@@ -18,6 +19,7 @@ export default function LinksPage({ view }) {
   const [filterBy, setFilterBy] = useState('title'); 
   const [favoritedIds, setFavoritedIds] = useState(new Set());
   const [visibleCount, setVisibleCount] = useState(6);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   // Pega o e‑mail do usuário logado em localStorage
   const userEmail = localStorage.getItem('userEmail') || 'Usuário'
@@ -144,49 +146,13 @@ export default function LinksPage({ view }) {
 
   return (
     <div className="w-full min-h-screen flex flex-col bg-gray-100">
-      {/* Cabeçalho */}
-      <header className="bg-blue-900 text-white shadow-lg w-full">
-        <div className="w-full max-w-[1280px] mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="text-2xl font-bold">Compartilhamento de Links</div>
-          <div className="flex items-center space-x-6">
-            <span className="text-lg">
-              Olá, <span className="text-indigo-300">{userEmail}</span>
-            </span>
-            <button
-              onClick={() => navigate('/links')}
-              className={`px-3 py-1 rounded-md transition ${
-                view === 'all'
-                  ? 'bg-indigo-700 shadow-inner'
-                  : 'text-gray-300 hover:bg-blue-800'
-              }`}
-            >
-              Todos os Links
-            </button>
-            <button
-              onClick={() => navigate('/my-links')}
-              className={`px-3 py-1 rounded-md transition ${
-                view === 'mine'
-                  ? 'bg-indigo-700 shadow-inner'
-                  : 'text-gray-300 hover:bg-blue-800'
-              }`}
-            >
-              Meus Links
-            </button>
-            <button
-              onClick={() => navigate('/favorites')}
-              className="px-3 py-1 rounded-md bg-gray-300 text-black hover:bg-gray-400 transition"
-            >
-              Favoritos
-            </button>
-            <button
-              onClick={handleLogout}
-              className="px-3 py-1 rounded-md text-red-400 hover:text-red-200 hover:bg-red-700 transition"
-            >
-              Sair
-            </button>
-          </div>
-        </div>
-      </header>
+      {/* HEADER */}
+      {/* Header padronizado */}
+      <Header
+        activeView={view}          
+        userEmail={userEmail}
+        onLogout={handleLogout}
+      />
       {/* Barra de pesquisa e filtro */}
       {/* Conteúdo */}
       <main className="flex-1 w-full px-4 md:px-6 lg:px-8 py-8 max-w-[1280px] mx-auto">
@@ -196,7 +162,7 @@ export default function LinksPage({ view }) {
         </div>
         /* Título da lista */
         <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
-          {view === 'mine' ? 'Seus Links' : 'Todos os Links'}
+          {view === 'mine' ? 'Meus Links' : 'Todos os Links'}
         </h2>
         {/* Filtro e pesquisa */}
         <SearchFiltered
@@ -361,7 +327,7 @@ export default function LinksPage({ view }) {
 
       {/* FOOTER */}
       <footer className="bg-gray-900 text-gray-300 text-center p-6 w-full">
-        &copy; {new Date().getFullYear()} Compartilhamento de Links. Todos os direitos reservados.
+        &copy; {new Date().getFullYear()} Compartilha Info. Todos os direitos reservados.
       </footer>
     </div>
   );

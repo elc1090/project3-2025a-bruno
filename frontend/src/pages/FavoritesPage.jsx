@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import SearchFiltered from '../components/SearchFiltered'
 import LoadMore from '../components/LoadMore'
+import Header from '../components/Header'
 
 export default function FavoritesPage({ onLogout }) {
   const [favorites, setFavorites] = useState([])
@@ -12,11 +13,15 @@ export default function FavoritesPage({ onLogout }) {
   const [editingId, setEditingId] = useState(null)
   const [editTitulo, setEditTitulo] = useState('')
   const [editUrl, setEditUrl] = useState('')
-    const [visibleCount, setVisibleCount] = useState(6);
+  const [visibleCount, setVisibleCount] = useState(6);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-  // Modal de denúncia (reaproveitamos a mesma lógica)
+  // Modal de denúncia 
   const [showReportModal, setShowReportModal] = useState(false)
   const [reportTarget, setReportTarget] = useState(null)
+
+  // Pega o email do usuário logado
+  const userEmail = localStorage.getItem('userEmail') || 'Usuário'
 
   const navigate = useNavigate()
 
@@ -32,14 +37,6 @@ export default function FavoritesPage({ onLogout }) {
   // Apagar favorito (não apaga o link em si, apenas o vínculo de favorito)
   const handleRemoveFavorite = async (linkId) => {
     await api.delete(`/favorites/${linkId}`)
-    loadFavorites()
-  }
-
-  // Excluir completamente (se for o criador do link)
-  const handleDelete = async (linkId) => {
-    // Se quiser permitir excluir o link por completo (no "Meus Links"),
-    // basta chamar o endpoint DELETE /links/:id e depois recarregar:
-    await api.delete(`/links/${linkId}`)
     loadFavorites()
   }
 
@@ -96,7 +93,6 @@ export default function FavoritesPage({ onLogout }) {
       return l.titulo.toLowerCase().includes(term)
     }
     if (filterBy === 'user') {
-      // autor em favorites é sempre "o criador do link", não o usuário que favoritou
       const authorName = l.user_email.split('@')[0].toLowerCase()
       return authorName.includes(term)
     }
@@ -118,31 +114,11 @@ export default function FavoritesPage({ onLogout }) {
   return (
     <div className="w-full min-h-screen flex flex-col bg-gray-100">
       {/* -------- HEADER -------- */}
-      <header className="bg-blue-900 text-white shadow-lg w-full">
-        <div className="w-full max-w-[1280px] mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="text-2xl font-bold">Favoritos</div>
-          <div className="flex items-center space-x-6">
-            <button
-              onClick={() => navigate('/links')}
-              className="px-3 py-1 rounded-md bg-gray-300 text-gray-700 hover:bg-gray-400 transition"
-            >
-              Voltar a Todos
-            </button>
-            <button
-              onClick={() => navigate('/my-links')}
-              className="px-3 py-1 rounded-md bg-gray-300 text-gray-700 hover:bg-gray-400 transition"
-            >
-              Meus Links
-            </button>
-            <button
-              onClick={handleLogout}
-              className="px-3 py-1 rounded-md text-red-400 hover:text-red-200 hover:bg-red-700 transition"
-            >
-              Sair
-            </button>
-          </div>
-        </div>
-      </header>
+      <Header
+              activeView="favorites"        
+              userEmail={userEmail}
+              onLogout={handleLogout}
+            />
 
       {/* -------- ESPAÇO ENTRE HEADER E CONTEÚDO -------- */}
       <div className="h-4 bg-gray-100"></div>
@@ -227,14 +203,24 @@ export default function FavoritesPage({ onLogout }) {
                     <h3 className="text-xl font-semibold text-gray-800">
                       {l.titulo}
                     </h3>
-                    {/* Clicando aqui, remove de favorito */}
-                    <button
-                      onClick={() => handleRemoveFavorite(l.id)}
-                      title="Remover dos Favoritos"
-                      className="text-sm text-yellow-600 hover:text-yellow-800 p-1 bg-transparent border-none outline-none"
-                    >
-                      ⭐
-                    </button>
+                    <div className="flex items-center space-x-2">
+                      {/* Clicando aqui, remove de favorito */}
+                      <button
+                        onClick={() => handleRemoveFavorite(l.id)}
+                        title="Remover dos Favoritos"
+                        className="text-lg text-yellow-600 hover:text-yellow-800 p-1 bg-transparent border-none outline-none"
+                      >
+                        ★
+                      </button>
+                      {/* Botão de denúncia */}
+                        <button
+                          onClick={() => openReportModal(l)}
+                          title="Reportar"
+                          className="text-lg text-red-500 hover:text-red-700 p-1 bg-transparent border-none outline-none"
+                        >
+                          📢
+                        </button>
+                      </div>
                   </div>
 
                   {/* Link clicável */}
@@ -252,25 +238,6 @@ export default function FavoritesPage({ onLogout }) {
                     <span>{addedAt}</span>
                     <span>{authorName}</span>
                   </div>
-
-                  {/* Em Favoritos, não faz sentido exibir “Excluir” (apagar do DB), 
-                      mas você ainda pode querer permitir editar ou apagar o link inteiro se for o criador. */}
-                  {l.user_email === JSON.parse(localStorage.getItem('user_email')) && (
-                    <div className="flex justify-end space-x-4 mt-4">
-                      <button
-                        onClick={() => handleEditClick(l)}
-                        className="text-green-600 hover:text-green-800"
-                      >
-                        Editar
-                      </button>
-                      <button
-                        onClick={() => handleDelete(l.id)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        Excluir
-                      </button>
-                    </div>
-                  )}
                 </div>
               )
             })}
@@ -285,7 +252,7 @@ export default function FavoritesPage({ onLogout }) {
 
       {/* -------- FOOTER -------- */}
       <footer className="bg-gray-900 text-gray-300 text-center p-6 w-full">
-        &copy; {new Date().getFullYear()} Compartilhamento de Links. Todos os direitos reservados.
+        &copy; {new Date().getFullYear()} Compartilha Info. Todos os direitos reservados.
       </footer>
 
       {/* -------- MODAL DE DENÚNCIA -------- */}
@@ -293,15 +260,13 @@ export default function FavoritesPage({ onLogout }) {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
             <h3 className="text-xl font-semibold mb-4">Reportar link</h3>
-            <p className="mb-4 text-gray-700">
-              Por que você quer reportar este link?
-            </p>
+            <p className="mb-4 text-gray-700">Por que você quer reportar este link?</p>
             <div className="space-y-2">
               {['Fake News', 'Conteúdo Inapropriado', 'Link Quebrado', 'Outro'].map((reason) => (
                 <button
                   key={reason}
                   onClick={() => handleReportSubmit(reason)}
-                  className="w-full text-left px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded"
+                  className="w-full text-left px-4 py-2 bg-gray-800 hover:bg-gray-200 rounded"
                 >
                   {reason}
                 </button>

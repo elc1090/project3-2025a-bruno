@@ -327,7 +327,7 @@ export default function LinksPage({ view }) {
 
       {/* FOOTER */}
       <footer className="bg-gray-900 text-gray-300 text-center p-6 w-full">
-        &copy; {new Date().getFullYear()} Compartilha Info. Todos os direitos reservados.
+        &copy; {new Date().getFullYear()} CompartilhaInfo. Todos os direitos reservados.
       </footer>
     </div>
   );

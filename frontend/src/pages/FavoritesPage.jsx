@@ -252,7 +252,7 @@ export default function FavoritesPage({ onLogout }) {
 
       {/* -------- FOOTER -------- */}
       <footer className="bg-gray-900 text-gray-300 text-center p-6 w-full">
-        &copy; {new Date().getFullYear()} Compartilha Info. Todos os direitos reservados.
+        &copy; {new Date().getFullYear()} CompartilhaInfo. Todos os direitos reservados.
       </footer>
 
       {/* -------- MODAL DE DENÚNCIA -------- */}

@@ -172,6 +172,8 @@ def delete_favorite(link_id):
     return jsonify({'msg': 'Removido dos favoritos'}), 200
 
 if __name__ == '__main__':
-    app.run(host='localhost', port=5000, debug=True)
+    from os import environ
+    port = int(environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
 
 

@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: flask-backend
+    env: python
+    plan: free
+    buildCommand: "pip install -r backend/requirements.txt"
+    startCommand: "gunicorn -w 4 -b 0.0.0.0:$PORT app:app"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10
+    buildFilter:
+      paths:
+        - backend/**
+
+  - type: static
+    name: react-frontend
+    env: static
+    buildCommand: "cd frontend && npm install && npm run build"
+    staticPublishPath: frontend/dist
+    buildFilter:
+      paths:
+        - frontend/**

@@ -7,7 +7,7 @@ export default function LoginPage({onLogin}) {
       <div className="flex flex-col items-center px-4 py-8 sm:px-6 lg:px-8 w-full max-w-md">
         {/* Logo */}
         <img
-          src="/src/assets/logo2.png"
+          src="/public/logo2.png"
           alt="Logo"
           className="w-36 h-46 mb-10"
         />

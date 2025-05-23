@@ -11,7 +11,10 @@ app.config.update(
     SESSION_COOKIE_HTTPONLY=True,       # segurança extra
 )
 # permite que o front acesse o back e envie cookies de sessão
-CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
+CORS(app, supports_credentials=True, origins=[
+    "http://localhost:5173",
+    "https://project3-2025a-bruno-frontend.onrender.com"
+])
 
 # Configuração da conexão com MySQL 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:Brunop10%40@localhost/project3'

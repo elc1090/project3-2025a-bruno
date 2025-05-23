@@ -56,6 +56,11 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated
 
+# Rota de teste
+@app.route('/')
+def home():
+    return jsonify({'msg': 'Backend do Compartilhamento de Links ativo'}), 200
+
 # Rota de login
 @app.route('/login', methods=['POST'])
 def login_user():

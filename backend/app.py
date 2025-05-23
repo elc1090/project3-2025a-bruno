@@ -2,6 +2,7 @@ from flask import Flask, request, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from functools import wraps
+import os
 
 app = Flask(__name__)
 # Configuração do Flask
@@ -17,8 +18,7 @@ CORS(app, supports_credentials=True, origins=[
 ])
 
 # Configuração da conexão com MySQL 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:Brunop10%40@localhost/project3'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL').replace('mysql://', 'mysql+pymysql://')
 
 db = SQLAlchemy(app)
 

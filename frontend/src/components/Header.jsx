@@ -15,7 +15,7 @@ export default function Header({ activeView, userEmail, onLogout }) {
           onClick={() => navigate('/links')}
         >
           <img
-            src="public/logo2.png"
+            src="logo2.png"
             alt="Logo Compartilha Info"
             className="w-12 h-12 object-contain"
           />

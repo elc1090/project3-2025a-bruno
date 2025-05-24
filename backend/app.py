@@ -8,15 +8,12 @@ app = Flask(__name__)
 # Configuração do Flask
 app.config.update(
     SECRET_KEY='uma-chave-qualquer',
-    SESSION_COOKIE_SAMESITE='Lax',    # permite envio em navegações top-level
-    SESSION_COOKIE_SECURE=True,       # cookies só serão enviados em HTTPS
-    SESSION_COOKIE_HTTPONLY=True,       # segurança extra
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='None',
+    SESSION_COOKIE_SECURE=True,
 )
 # permite que o front acesse o back e envie cookies de sessão
-CORS(app, supports_credentials=True, origins=[
-    "http://localhost:5173",
-    "https://project3-2025a-bruno-frontend.onrender.com"
-])
+CORS(app, supports_credentials=True, origins=["https://project3-2025a-bruno-frontend.onrender.com"])
 
 # Configuração da conexão com MySQL 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL').replace('mysql://', 'mysql+pymysql://')

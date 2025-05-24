@@ -9,6 +9,7 @@ app = Flask(__name__)
 app.config.update(
     SECRET_KEY='uma-chave-qualquer',
     SESSION_COOKIE_SAMESITE='Lax',    # permite envio em navegações top-level
+    SESSION_COOKIE_SECURE=True,       # cookies só serão enviados em HTTPS
     SESSION_COOKIE_HTTPONLY=True,       # segurança extra
 )
 # permite que o front acesse o back e envie cookies de sessão

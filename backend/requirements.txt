@@ -3,3 +3,4 @@ Flask-Cors==3.0.10
 gunicorn==20.1.0
 mysqlclient
 flask-sqlalchemy
+pymysql

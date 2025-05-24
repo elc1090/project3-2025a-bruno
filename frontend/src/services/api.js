@@ -1,8 +1,12 @@
 import axios from 'axios';
 
+const isProd = import.meta.env.MODE === 'production';
+
 const api = axios.create({
-  baseURL: 'https://project3-2025a-bruno-backend.onrender.com',                 // URL base da API
-  withCredentials: true,                                                         // envia cookie de sessão
+  baseURL: isProd 
+    ? 'https://project3-2025a-bruno-backend.onrender.com' 
+    : 'http://localhost:5000',
+  withCredentials: true
 });
 
 export default api;

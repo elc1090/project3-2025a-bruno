@@ -1,6 +1,6 @@
 # Projeto: Aplicação web com persistência de dados do lado do servidor
 
-![Screenshot do projeto](src/assets/gif.gif "Screenshot do projeto")
+![GIF do projeto](media/gif.gif "GIF do projeto")
 
 Acesso: [https://project3-2025a-bruno-frontend.onrender.com](https://project3-2025a-bruno-frontend.onrender.com)  
 Backend: [https://project3-2025a-bruno-backend.onrender.com](https://project3-2025a-bruno-backend.onrender.com)
